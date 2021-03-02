@@ -1,0 +1,6 @@
+bot:
+  name:
+  token:
+  debug: true
+docker-orchestrator:
+  config-location: data/deployment_configs.json

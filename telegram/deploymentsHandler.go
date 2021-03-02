@@ -52,7 +52,7 @@ func (d DeploymentsHandler) handleCallbackQuery(callbackQuery tgbotapi.CallbackQ
 		pull(target, *callbackQuery.Message)
 	case "return":
 		showDeployments(*callbackQuery.Message, true)
-	case "return_new":
+	case "return_new:deployments":
 		showDeployments(*callbackQuery.Message, false)
 	}
 	return false

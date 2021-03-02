@@ -13,8 +13,8 @@ var deployments []Deployment
 var deploymentConfigLocation string
 
 func init() {
-	deployments = loadAllDeployments()
 	deploymentConfigLocation = config.Configuration.DockerOrchestrator.ConfigLocation
+	deployments = loadAllDeployments()
 }
 
 func SaveDeployment(dc Deployment) (Deployment, error) {

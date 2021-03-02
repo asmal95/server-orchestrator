@@ -3,4 +3,4 @@ bot:
   token:
   debug: true
 docker-orchestrator:
-  config-location: data/deployment_configs.json
+  config-location: deployment_configs.json

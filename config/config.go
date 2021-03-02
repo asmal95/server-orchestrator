@@ -8,7 +8,7 @@ import (
 var Configuration Config
 
 func init() {
-	err := cleanenv.ReadConfig("config.yml", &Configuration)
+	err := cleanenv.ReadConfig("config.yaml", &Configuration)
 	if err != nil {
 		log.Error("Can't load configuration: %v", err)
 		panic(err)
@@ -29,7 +29,7 @@ type Config struct {
 		Debug bool   `yaml:"debug" env:"TG_BOT_DEBUG" env-upd`
 	} `yaml:"bot"`
 	DockerOrchestrator struct {
-		ConfigLocation string `yaml:"config-location env: "DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
+		ConfigLocation string `yaml:"config-location" env:"DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
 	} `yaml:"docker-orchestrator"`
 }
 

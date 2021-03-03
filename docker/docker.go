@@ -42,13 +42,22 @@ func CreateContainer(dc deployment.Deployment) (deployment.Deployment, error) {
 		portBinding[containerPort] = []nat.PortBinding{hostBinding}
 	}
 
+	labels := map[string]string{
+		"deployment_name": dc.Name,
+		"managed_by":      "server-orchestrator",
+	}
+	config := &container.Config{
+		Image:  dc.GetImage(),
+		Env:    dc.BuildEnvVariables(),
+		Tty:    true,
+		Labels: labels,
+	}
+	if len(dc.Entrypoint) > 0 {
+		config.Entrypoint = dc.Entrypoint
+	}
 	cont, err := Client.ContainerCreate(
 		context.Background(),
-		&container.Config{
-			Image: dc.GetImage(),
-			Env:   dc.BuildEnvVariables(),
-			Tty:   true,
-		},
+		config,
 		&container.HostConfig{
 			PortBindings: portBinding,
 		}, nil, dc.Name)
@@ -80,21 +89,18 @@ func StartContainer(dc deployment.Deployment) (deployment.Deployment, error) {
 	return dc, nil
 }
 
-func ListContainer() error {
-
-	containers, err := Client.ContainerList(context.Background(), types.ContainerListOptions{})
+func GetManagedContainers() ([]types.Container, error) {
+	containers, err := Client.ContainerList(context.Background(), types.ContainerListOptions{All: true})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-
-	if len(containers) > 0 {
-		for _, container := range containers {
-			fmt.Printf("Container ID: %s", container.ID)
+	var result = make([]types.Container, 0)
+	for _, cont := range containers {
+		if label, ok := cont.Labels["managed_by"]; ok && label == "server-orchestrator" {
+			result = append(result, cont)
 		}
-	} else {
-		fmt.Println("There are no containers running")
 	}
-	return nil
+	return result, nil
 }
 
 func RemoveContainer(dep deployment.Deployment) (deployment.Deployment, error) {

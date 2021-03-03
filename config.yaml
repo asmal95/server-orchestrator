@@ -4,3 +4,4 @@ bot:
   debug: true
 docker-orchestrator:
   config-location: deployment_configs.json
+  synchronization-interval: 10s

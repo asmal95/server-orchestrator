@@ -26,10 +26,11 @@ type Config struct {
 	Bot struct {
 		Name  string `yaml:"name" env:"TG_BOT_NAME" env-upd`
 		Token string `yaml:"token" env:"TG_BOT_TOKEN" env-required:"true" env-upd`
-		Debug bool   `yaml:"debug" env:"TG_BOT_DEBUG" env-upd`
+		Debug bool   `yaml:"debug" env:"TG_BOT_DEBUG" env-default:"false" env-upd`
 	} `yaml:"bot"`
 	DockerOrchestrator struct {
-		ConfigLocation string `yaml:"config-location" env:"DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
+		ConfigLocation          string `yaml:"config-location" env:"DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
+		SynchronizationInterval string `yaml:"synchronization-interval" env:"DOCKER_ORCHESTRATOR_SYNCHRONIZATION_INTERVAL" env-default:"30s"`
 	} `yaml:"docker-orchestrator"`
 }
 

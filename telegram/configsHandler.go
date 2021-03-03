@@ -44,6 +44,10 @@ func (c ConfigsHandler) handleMessage(message tgbotapi.Message) bool {
 func (c ConfigsHandler) handleCallbackQuery(callbackQuery tgbotapi.CallbackQuery) bool {
 
 	s := strings.Split(callbackQuery.Data, ":")
+	if len(s) < 2 {
+		log.Warnf("Can't parse %v query data")
+		return false
+	}
 	action, target := s[0], s[1]
 	switch action {
 	case "config":
@@ -112,6 +116,7 @@ type DeploymentMessageConfig struct {
 	DockerRepository string            `yaml:"docker_repository"`
 	DockerTag        string            `yaml:"docker_tag"`
 	Environment      map[string]string `yaml:"environment"`
+	Entrypoint       []string          `yaml:"entrypoint"`
 	PortBinding      map[string]string `yaml:"port_binding"` //host : container
 }
 
@@ -120,7 +125,8 @@ func ConvertToDeploymentMessageConfig(dep deployment.Deployment) DeploymentMessa
 		Name:             dep.Name,
 		DockerRepository: dep.DockerRepository,
 		DockerTag:        dep.DockerTag,
-		Environment:      dep.Environment,
+		Environment:      maskSensitiveParameters(dep.Environment),
+		Entrypoint:       dep.Entrypoint,
 		PortBinding:      dep.PortBinding,
 	}
 	return res
@@ -181,7 +187,8 @@ func applyConfig(message tgbotapi.Message) bool {
 	dep.DockerRepository = conf.DockerRepository
 	dep.DockerTag = conf.DockerTag
 	dep.PortBinding = conf.PortBinding
-	dep.Environment = conf.Environment
+	dep.Environment = unmaskSensitiveParameters(conf.Environment, dep.Environment)
+	dep.Entrypoint = conf.Entrypoint
 
 	_, err = deployment.SaveDeployment(dep)
 	if err != nil {
@@ -199,7 +206,7 @@ func newDeployment(message tgbotapi.Message) bool {
 		log.Errorf("Can't edit message: %v", err)
 	}
 
-	returnAct := fmt.Sprintf("return_new")
+	returnAct := fmt.Sprintf("return:deployments")
 
 	newMessage := tgbotapi.NewMessage(message.Chat.ID, "Send `yaml` config to create. Example:\n"+
 		"```\n"+
@@ -254,6 +261,7 @@ func applyNewConfig(message tgbotapi.Message) bool {
 		DockerRepository: conf.DockerRepository,
 		DockerTag:        conf.DockerTag,
 		Environment:      conf.Environment,
+		Entrypoint:       conf.Entrypoint,
 		PortBinding:      conf.PortBinding,
 	}
 
@@ -264,4 +272,35 @@ func applyNewConfig(message tgbotapi.Message) bool {
 	}
 	chat.SetAction(message.Chat.ID, "none")
 	return showConfig(dep.Name, message, false)
+}
+
+func maskSensitiveParameters(env map[string]string) map[string]string {
+	result := make(map[string]string)
+	for key, value := range env {
+		if strings.Contains(strings.ToLower(key), "password") ||
+			strings.Contains(strings.ToLower(key), "token") ||
+			strings.Contains(strings.ToLower(key), "secret") {
+
+			result[key] = "[HIDDEN]"
+		} else {
+			result[key] = value
+		}
+	}
+	return result
+}
+
+func unmaskSensitiveParameters(masked map[string]string, original map[string]string) map[string]string {
+	result := make(map[string]string)
+	for key, value := range masked {
+		if value == "[HIDDEN]" {
+			if originalValue, ok := original[key]; ok {
+				result[key] = originalValue
+			} else {
+				log.Warnf("Can't find original value for the masked env variable: %v", key)
+			}
+		} else {
+			result[key] = value
+		}
+	}
+	return result
 }

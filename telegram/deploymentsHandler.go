@@ -34,6 +34,10 @@ func (d DeploymentsHandler) handleMessage(message tgbotapi.Message) bool {
 func (d DeploymentsHandler) handleCallbackQuery(callbackQuery tgbotapi.CallbackQuery) bool {
 
 	s := strings.Split(callbackQuery.Data, ":")
+	if len(s) < 2 {
+		log.Warnf("Can't parse %v query data")
+		return false
+	}
 	action, target := s[0], s[1]
 	switch action {
 	case "deployment":
@@ -52,7 +56,7 @@ func (d DeploymentsHandler) handleCallbackQuery(callbackQuery tgbotapi.CallbackQ
 		pull(target, *callbackQuery.Message)
 	case "return":
 		showDeployments(*callbackQuery.Message, true)
-	case "return_new:deployments":
+	case "return_new":
 		showDeployments(*callbackQuery.Message, false)
 	}
 	return false

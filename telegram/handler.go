@@ -30,7 +30,9 @@ func (g GreetingHandler) HandleUpdate(update tgbotapi.Update) bool {
 func (g GreetingHandler) handleMessage(message tgbotapi.Message) bool {
 	switch command(message.Text) {
 	case "/start":
-		msg := tgbotapi.NewMessage(message.Chat.ID, "Hi, i'm IgorBot deployer. I can deploy the your Igor!")
+		msg := tgbotapi.NewMessage(message.Chat.ID, "Hi! I can help you to deploy your service in the docker right here, in the telegram chat!\n"+
+			"To create a new deployment please use /new_deployment command. \n"+
+			"To list existing deployments please use /deployments command.")
 		_, err := Bot.Send(msg)
 		if err != nil {
 			log.Errorf("Can't send message to the chat: %v", err)

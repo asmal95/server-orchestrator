@@ -10,7 +10,7 @@ var Configuration Config
 func init() {
 	err := cleanenv.ReadConfig("config.yaml", &Configuration)
 	if err != nil {
-		log.Error("Can't load configuration: %v", err)
+		log.Errorf("Can't load configuration: %v", err)
 		panic(err)
 	}
 }

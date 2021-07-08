@@ -14,9 +14,8 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.8.0 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	golang.org/x/net v0.0.0-20210220033124-5f55cee0dc0d // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )

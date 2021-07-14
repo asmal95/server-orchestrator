@@ -118,6 +118,7 @@ type DeploymentMessageConfig struct {
 	Environment      map[string]string `yaml:"environment"`
 	Entrypoint       []string          `yaml:"entrypoint"`
 	PortBinding      map[string]string `yaml:"port_binding"` //host : container
+	Mounts           map[string]string `yaml:"mounts"`       //host : container
 }
 
 func ConvertToDeploymentMessageConfig(dep deployment.Deployment) DeploymentMessageConfig {
@@ -128,6 +129,7 @@ func ConvertToDeploymentMessageConfig(dep deployment.Deployment) DeploymentMessa
 		Environment:      maskSensitiveParameters(dep.Environment),
 		Entrypoint:       dep.Entrypoint,
 		PortBinding:      dep.PortBinding,
+		Mounts:           dep.Mounts,
 	}
 	return res
 }
@@ -189,6 +191,7 @@ func applyConfig(message tgbotapi.Message) bool {
 	dep.PortBinding = conf.PortBinding
 	dep.Environment = unmaskSensitiveParameters(conf.Environment, dep.Environment)
 	dep.Entrypoint = conf.Entrypoint
+	dep.Mounts = conf.Mounts
 
 	_, err = deployment.SaveDeployment(dep)
 	if err != nil {
@@ -218,6 +221,8 @@ func newDeployment(message tgbotapi.Message) bool {
 		"  ENV_VAR_2: value_2\n"+
 		"port_binding:\n"+
 		"  \"<host_port>\": \"<container_port>\"\n"+
+		"mounts:\n"+
+		"  \"<host_path>\": \"<container_path>\"\n"+
 		"```")
 	newMessage.ParseMode = tgbotapi.ModeMarkdown
 	markup := tgbotapi.InlineKeyboardMarkup{
@@ -263,6 +268,7 @@ func applyNewConfig(message tgbotapi.Message) bool {
 		Environment:      conf.Environment,
 		Entrypoint:       conf.Entrypoint,
 		PortBinding:      conf.PortBinding,
+		Mounts:           conf.Mounts,
 	}
 
 	dep, err = deployment.SaveDeployment(dep)

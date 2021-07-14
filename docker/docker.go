@@ -7,6 +7,7 @@ import (
 	"github.com/docker/distribution/context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	log "github.com/sirupsen/logrus"
@@ -42,6 +43,15 @@ func CreateContainer(dc deployment.Deployment) (deployment.Deployment, error) {
 		portBinding[containerPort] = []nat.PortBinding{hostBinding}
 	}
 
+	mounts := make([]mount.Mount, 0)
+	for hostPath, docketPath := range dc.Mounts {
+		mounts = append(mounts, mount.Mount{
+			Type:   mount.TypeBind,
+			Source: hostPath,
+			Target: docketPath,
+		})
+	}
+
 	labels := map[string]string{
 		"deployment_name": dc.Name,
 		"managed_by":      "server-orchestrator",
@@ -60,6 +70,7 @@ func CreateContainer(dc deployment.Deployment) (deployment.Deployment, error) {
 		config,
 		&container.HostConfig{
 			PortBindings: portBinding,
+			Mounts:       mounts,
 		}, nil, dc.Name)
 	if err != nil {
 		dc.Container.Status = deployment.Failed

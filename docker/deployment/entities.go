@@ -21,6 +21,7 @@ type Deployment struct {
 	DockerTag        string            `json:"docker_tag"`
 	Environment      map[string]string `json:"environment"`
 	PortBinding      map[string]string `json:"port_binding"` //host : container
+	Mounts           map[string]string `json:"mounts"`       //host : container
 	Entrypoint       []string          `json:"entrypoint"`   //host : container
 	Container        struct {
 		ContainerId string          `json:"container_id"`

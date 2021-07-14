@@ -32,6 +32,7 @@ type Config struct {
 		ConfigLocation          string `yaml:"config-location" env:"DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
 		SynchronizationInterval string `yaml:"synchronization-interval" env:"DOCKER_ORCHESTRATOR_SYNCHRONIZATION_INTERVAL" env-default:"30s"`
 	} `yaml:"docker-orchestrator"`
+	AdminChatId int64 `yaml:"admin-chat-id"`
 }
 
 //https://dev.to/ilyakaznacheev/a-clean-way-to-pass-configs-in-a-go-application-1g64

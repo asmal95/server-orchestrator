@@ -23,7 +23,7 @@ func Start() {
 
 	for update := range updates {
 		for _, handler := range handlers {
-			if handler.HandleUpdate(update) {
+			if isAdminChat(update) && handler.HandleUpdate(update) {
 				break
 			}
 		}

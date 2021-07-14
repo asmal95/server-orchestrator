@@ -5,3 +5,4 @@ bot:
 docker-orchestrator:
   config-location: deployment_configs.json
   synchronization-interval: 10s
+admin-chat-id:

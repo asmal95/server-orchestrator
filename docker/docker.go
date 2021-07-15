@@ -8,12 +8,14 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"os"
+	"server-orchestrator/config"
 	"server-orchestrator/docker/deployment"
 )
 
@@ -26,6 +28,20 @@ func init() {
 		panic(err)
 	}
 	Client = cli
+
+	// create network
+	resp, err := Client.NetworkCreate(context.Background(), config.Configuration.DockerOrchestrator.NetworkName,
+		types.NetworkCreate{
+			CheckDuplicate: true,
+			Driver:         "bridge",
+			Attachable:     true,
+		})
+
+	if err != nil {
+		log.Errorf("Error during creating network: %v", err)
+	} else {
+		log.Infof("Network created: %v", resp.ID)
+	}
 }
 
 func CreateContainer(dc deployment.Deployment) (deployment.Deployment, error) {
@@ -56,22 +72,28 @@ func CreateContainer(dc deployment.Deployment) (deployment.Deployment, error) {
 		"deployment_name": dc.Name,
 		"managed_by":      "server-orchestrator",
 	}
-	config := &container.Config{
+	containerConfig := &container.Config{
 		Image:  dc.GetImage(),
 		Env:    dc.BuildEnvVariables(),
 		Tty:    true,
 		Labels: labels,
 	}
 	if len(dc.Entrypoint) > 0 {
-		config.Entrypoint = dc.Entrypoint
+		containerConfig.Entrypoint = dc.Entrypoint
 	}
+
 	cont, err := Client.ContainerCreate(
 		context.Background(),
-		config,
+		containerConfig,
 		&container.HostConfig{
 			PortBindings: portBinding,
 			Mounts:       mounts,
-		}, nil, dc.Name)
+		},
+		&network.NetworkingConfig{
+			EndpointsConfig: map[string]*network.EndpointSettings{
+				config.Configuration.DockerOrchestrator.NetworkName: {},
+			},
+		}, dc.Name)
 	if err != nil {
 		dc.Container.Status = deployment.Failed
 		log.Errorf("Can't create container: %v", err)
@@ -224,3 +246,7 @@ func stopAll() {
 
 // https://medium.com/tarkalabs/controlling-the-docker-engine-in-go-826012f9671c
 // https://habr.com/ru/post/449038/
+// https://www.tutorialworks.com/container-networking/
+// https://docs.docker.com/engine/reference/commandline/network_connect/
+// https://docs.docker.com/config/containers/container-networking/
+// https://docs.docker.com/engine/reference/commandline/network_create/

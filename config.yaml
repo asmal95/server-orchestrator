@@ -1,8 +1,10 @@
 bot:
   name:
   token:
-  debug: true
+  debug: false
 docker-orchestrator:
   config-location: deployment_configs.json
   synchronization-interval: 10s
+  network-name: orchestrator-network
 admin-chat-id:
+super-user-id:

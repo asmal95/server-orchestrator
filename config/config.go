@@ -31,8 +31,10 @@ type Config struct {
 	DockerOrchestrator struct {
 		ConfigLocation          string `yaml:"config-location" env:"DOCKER_ORCHESTRATOR_CONFIG_LOCATION" env-required:"true"`
 		SynchronizationInterval string `yaml:"synchronization-interval" env:"DOCKER_ORCHESTRATOR_SYNCHRONIZATION_INTERVAL" env-default:"30s"`
+		NetworkName             string `yaml:"network-name" env:"DOCKER_ORCHESTRATOR_NETWORK_NAME" env-default:"orchestrator-network"`
 	} `yaml:"docker-orchestrator"`
-	AdminChatId int64 `yaml:"admin-chat-id"`
+	AdminChatId int64 `yaml:"admin-chat-id" env:"ADMIN_CHAT_ID"`
+	SuperUserId int64 `yaml:"super-user-id" env:"SUPER_USER_ID"`
 }
 
 //https://dev.to/ilyakaznacheev/a-clean-way-to-pass-configs-in-a-go-application-1g64
